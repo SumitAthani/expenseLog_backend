@@ -1,51 +1,27 @@
 const express = require("express");
 const Expenditure = require("../models/Expenditures");
 const router = express.Router();
-const AllExpenditures = require("../models/AllExpenditures");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const check_auth = require("../middlewares/auth");
 const User = require("../models/Users");
 require("dotenv").config();
-const moment = require("moment-timezone");
-const { json } = require("express/lib/response");
 
 router.get("/", (req, res) => {
   res.status(200).json({ message: "Working" });
 });
 
 router.post("/addTransactions", check_auth, async (req, res) => {
-  console.log(req.body);
-  const data = req.body;
+  const now = req.body.pop();
 
-  var present = moment
-    .tz(Date.now(), "Asia/Calcutta")
-    .format("DD MMMM YYYY HH:mm:ss");
-  console.log(present);
-  var present = present.split(" ");
-
-  // var date = present[0];
-  var date = present[0];
-  var month = present[1];
-  var year = present[2];
+  var date = now["date"];
+  var month = now["month"];
+  var year = now["year"];
 
   var user = await User.findOne({
     _id: req.user.userId,
   });
 
-  // user.all = {
-  //   [year]: {
-  //     [month]: {
-  //       [date]: {
-  //         value: []
-  //       }
-  //     }
-  //   }
-  // }
-
   var total = 0;
   req.body.forEach((element) => (total += parseFloat(element["cost"])));
-  console.log(total);
 
   if (!user["all"][year]) {
     Object.assign(user["all"], {
@@ -79,10 +55,6 @@ router.post("/addTransactions", check_auth, async (req, res) => {
     await user.updateOne({ all: user["all"] });
   } else if (!user["all"][year][month][date]) {
     console.log("date not found");
-    // var value = `all.${year}.${month}`
-
-    // let total =0
-    // req.body.forEach((element)=> total+=parseFloat(element["cost"]) );
 
     yeartotal = parseFloat(user["all"][year]["total"]) + total;
 
@@ -112,26 +84,15 @@ router.post("/addTransactions", check_auth, async (req, res) => {
 
     AllExpenses = user["all"][year][month][date]["expenditure"];
 
-    console.log(AllExpenses);
-
     var values = req.body;
 
     AllExpenses.push(...values);
 
-    console.log(AllExpenses);
-
     user["all"][year][month][date]["expenditure"] = AllExpenses;
 
     await user.updateOne({ all: user["all"] });
-
-    // return res.json(user);
   }
 
-  // console.log(user["all"].get("2022"));
-  // var dat = user["all"].get("2022");
-  // console.log(dat["March"]);
-
-  console.log(user);
   await user.save();
 
   return res.json(user);
@@ -193,7 +154,7 @@ router.get("/getTransactions", check_auth, async (req, res) => {
   const data = await Expenditure.find({
     userId: req.user.userId,
   });
-  console.log(data);
+
   return res.status(200).json(data);
 });
 
@@ -203,16 +164,12 @@ router.get("/getYears", check_auth, async (req, res) => {
   });
 
   var All = data.all;
-  console.log(typeof All);
 
   var keys = Object.keys(All);
   var totals = [];
   keys.forEach((e) => totals.push(All[e]["total"]));
-  // keys.pop("total");
-  console.log(keys, totals);
 
   return res.json({ data: keys, totals: totals });
-  // return res.status(200).json(data.years)
 });
 
 router.post("/getMonths", check_auth, async (req, res) => {
@@ -223,22 +180,18 @@ router.post("/getMonths", check_auth, async (req, res) => {
 
   var All = data.all;
   var keys = Object.keys(All[year]);
-  console.log(keys);
+
   keys.splice(keys.indexOf("total"), 1);
 
   var totals = [];
   keys.forEach((e) => totals.push(All[year][e]["total"]));
 
-  console.log(keys, totals);
-  // console.log(typeof All);
   return res.json({ data: keys, totals: totals });
 });
 
 router.post("/getDates", check_auth, async (req, res) => {
   var year = req.body.year;
   var month = req.body.month;
-
-  console.log("body", req.body);
 
   const data = await User.findOne({
     _id: req.user.userId,
@@ -252,15 +205,12 @@ router.post("/getDates", check_auth, async (req, res) => {
   keys.splice(keys.indexOf("total"), 1);
   keys.forEach((e) => totals.push(All[year][month][e]["total"]));
 
-  console.log(keys, totals);
-
   var All = data.all;
-  console.log(typeof All);
+
   return res.json({ data: keys, totals: totals });
 });
 
 router.post("/getDatesExpenditures", check_auth, async (req, res) => {
-  console.log(req.body);
   var year = req.body.year;
   var month = req.body.month;
   var date = req.body.day;
@@ -269,44 +219,36 @@ router.post("/getDatesExpenditures", check_auth, async (req, res) => {
   });
 
   console.log(date);
-  // console.log(data);
 
-  //  var All = data.all;
-  // console.log(typeof All);
   console.log(data["all"][year][month][date]);
-  // console.log(data["all"][year][month][date]["expenditure"])
+
   return res.json(data["all"][year][month][date]["expenditure"]);
 });
 
-router.get("/getToday", check_auth, async (req, res) => {
-  var present = moment
-    .tz(Date.now(), "Asia/Calcutta")
-    .format("DD MMMM YYYY HH:mm:ss");
-  console.log(present);
-  var present = present.split(" ");
+router.post("/getToday", check_auth, async (req, res) => {
+  var body = req.body;
 
-  var date = present[0];
-  var month = present[1];
-  var year = present[2];
+  var date = body["date"];
+  var month = body["month"];
+  var year = body["year"];
 
   var user = await User.findOne({
     _id: req.user.userId,
   });
 
-  console.log(user);
+  console.log("getting todays data");
 
   if (!user["all"][year]) {
-    console.log("year");
+    console.log("new year");
     return res.json({ data: [], message: "add something" });
   } else if (!user["all"][year][month]) {
-    console.log("month");
+    console.log("new month in same year");
     return res.json({ data: [], message: "add something" });
   } else if (!user["all"][year][month][date]) {
-    console.log("date");
+    console.log("new date in same month");
     return res.json({ data: [], message: "add something" });
   } else {
-    // console.log("day")
-    console.log("im herer");
+    console.log("adding a new expenditure for the day");
     return res.json({
       data: user["all"][year][month][date].expenditure,
       message: "data sent",

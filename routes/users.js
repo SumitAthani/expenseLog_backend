@@ -3,22 +3,11 @@ const User = require("../models/Users");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { Schema } = require("mongoose");
-const { json } = require("express/lib/response");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 router.get("/", (req, res) => {
   res.send("User page");
-  // const Years = new Schema();
-  // Years.add({
-  //   years: {
-  //   type: Array,
-  //   required: false,
-  //   default: []
-  // }
-  // })
-  // User.updateMany({ enabled : { $exists : false } }, { enabled : false } );
 });
 
 router.post("/login", async (req, res) => {
