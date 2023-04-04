@@ -83,7 +83,7 @@ router.post("/addTransactions", check_auth, async (req, res) => {
 
     monthtotal = formatter.format(parseFloat(user["all"][year][month]["total"]) + total);
 
-    daytotal = formatter,format(parseFloat(user["all"][year][month][date]["total"]) + total);
+    daytotal = formatter.format(parseFloat(user["all"][year][month][date]["total"]) + total);
 
     user["all"][year][month][date]["total"] = daytotal;
     user["all"][year][month]["total"] = monthtotal;
