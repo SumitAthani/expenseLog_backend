@@ -72,6 +72,7 @@ router.post("/addTransactions", check_auth, async (req, res) => {
 
     await user.updateOne({ all: user["all"] });
   } else {
+    console.log("body ",req.body);
     yeartotal = parseFloat(user["all"][year]["total"]) + total;
 
     monthtotal = parseFloat(user["all"][year][month]["total"]) + total;
