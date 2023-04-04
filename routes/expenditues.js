@@ -11,7 +11,7 @@ router.get("/", (req, res) => {
 
 router.post("/addTransactions", check_auth, async (req, res) => {
   const formatter = new Intl.NumberFormat('en-US', {
-   minimumFractionDigits: 2,      
+   minimumFractionDigits: 0,      
    maximumFractionDigits: 2,
 });
   
