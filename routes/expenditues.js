@@ -218,12 +218,13 @@ router.post("/getDatesExpenditures", check_auth, async (req, res) => {
   const data = await User.findOne({
     _id: req.user.userId,
   });
-  date = parseInt(date);
+  
+  
   console.log(date);
 
   console.log(data["all"][year][month][date]);
 
-  return res.json(data["all"][year][month][date]["expenditure"]);
+  return res.json(data["all"]?.[year]?.[month]?.[date]?.["expenditure"]||data["all"]?.[year]?.[month]?.[parseInt(date)]?.["expenditure"]);
 });
 
 router.post("/getToday", check_auth, async (req, res) => {
