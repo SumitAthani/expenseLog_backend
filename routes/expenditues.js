@@ -28,7 +28,7 @@ router.post("/addTransactions", check_auth, async (req, res) => {
   var total = 0;
   req.body.forEach((element) => (total += parseFloat(element["cost"])));
   
-  total = formatter.format(total);
+  total = parseFloat(formatter.format(total));
   if (!user["all"][year]) {
     Object.assign(user["all"], {
       [year]: {
@@ -46,7 +46,7 @@ router.post("/addTransactions", check_auth, async (req, res) => {
   } else if (!user["all"][year][month]) {
     // let total = 0;
     // req.body.forEach((element)=> total+=parseFloat(element["cost"]) );
-    yeartotal = formater.format(parseFloat(user["all"][year]["total"]) + total);
+    yeartotal = parseFloat(formater.format(parseFloat(user["all"][year]["total"]) + total));
 
     Object.assign(user["all"][year], {
       total: yeartotal,
@@ -62,9 +62,9 @@ router.post("/addTransactions", check_auth, async (req, res) => {
   } else if (!user["all"][year][month][date]) {
     console.log("date not found");
 
-    yeartotal = formatter.format(parseFloat(user["all"][year]["total"]) + total);
+    yeartotal = parseFloat(formatter.format(parseFloat(user["all"][year]["total"]) + total));
 
-    monthtotal = formatter.format(parseFloat(user["all"][year][month]["total"]) + total);
+    monthtotal = parseFloat(formatter.format(parseFloat(user["all"][year][month]["total"]) + total));
 
     user["all"][year]["total"] = yeartotal;
 
@@ -79,11 +79,11 @@ router.post("/addTransactions", check_auth, async (req, res) => {
     await user.updateOne({ all: user["all"] });
   } else {
     console.log("body ",req.body);
-    yeartotal = formatter.format(parseFloat(user["all"][year]["total"]) + total);
+    yeartotal = parseFloat(formatter.format(parseFloat(user["all"][year]["total"]) + total));
 
-    monthtotal = formatter.format(parseFloat(user["all"][year][month]["total"]) + total);
+    monthtotal = parseFloat(formatter.format(parseFloat(user["all"][year][month]["total"]) + total));
 
-    daytotal = formatter.format(parseFloat(user["all"][year][month][date]["total"]) + total);
+    daytotal = parseFloat(formatter.format(parseFloat(user["all"][year][month][date]["total"]) + total));
 
     user["all"][year][month][date]["total"] = daytotal;
     user["all"][year][month]["total"] = monthtotal;
