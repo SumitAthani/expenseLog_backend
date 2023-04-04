@@ -218,7 +218,7 @@ router.post("/getDatesExpenditures", check_auth, async (req, res) => {
   const data = await User.findOne({
     _id: req.user.userId,
   });
-
+  date = parseInt(date);
   console.log(date);
 
   console.log(data["all"][year][month][date]);
